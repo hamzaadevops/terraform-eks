@@ -26,7 +26,9 @@ module "eks" {
 #   }
 
   # Optional: Adds the current caller identity as an administrator via cluster access entry
-  enable_cluster_creator_admin_permissions = true
+  enable_cluster_creator_admin_permissions  = true
+  cluster_enabled_log_types                 = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
 
   vpc_id                   = var.vpc_id
   subnet_ids               = var.subnet_ids
