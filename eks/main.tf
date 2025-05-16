@@ -1,23 +1,50 @@
-module "my-cluster" {
-  source       = "terraform-aws-modules/eks/aws"
-  cluster_name = "my-cluster"
-  cluster_version = "1.21"
-  subnets      = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
-  vpc_id       = "vpc-1234556abcdef"
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
 
-  worker_groups = [
-    {
-      instance_type = "m4.large"
-      asg_max_size  = 5
-      tags = [{
-        key                 = "foo"
-        value               = "bar"
-        propagate_at_launch = true
-      }]
+  cluster_name    = var.cluster_name
+  cluster_version = var.cluster_version
+
+  bootstrap_self_managed_addons = false
+  cluster_addons = {
+    coredns                = {}
+    eks-pod-identity-agent = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
+  }
+
+  # Optional: Enable the cluster endpoint public access
+  cluster_endpoint_public_access = true
+
+  # Optional: Adds the current caller identity as an administrator via cluster access entry
+  enable_cluster_creator_admin_permissions = true
+
+  vpc_id                   = module.vpc.vpc_id
+  subnet_ids               = module.vpc.private_subnets
+
+  enable_irsa = true
+
+  # EKS Managed Node Group(s)
+  eks_managed_node_group_defaults = {
+    instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
+  }
+
+  eks_managed_node_groups = {
+    nodegroup-burstable = {
+      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
+      ami_type       = var.ami_type
+      instance_types = var.instance_types
+
+      min_size     = var.min_size
+      desired_size = var.desired_size
+      max_size     = var.max_size
+
+      subnet_ids = module.vpc.private_subnets
     }
-  ]
+  }
 
   tags = {
-    environment = "test"
+    Environment = "dev"
+    Terraform   = "true"
   }
 }
