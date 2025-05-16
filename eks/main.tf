@@ -19,8 +19,8 @@ module "eks" {
   # Optional: Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
 
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.subnet_ids
 
   enable_irsa = true
 
@@ -39,7 +39,7 @@ module "eks" {
       desired_size = var.desired_size
       max_size     = var.max_size
 
-      subnet_ids = module.vpc.private_subnets
+      subnet_ids = var.subnet_ids
     }
   }
 
