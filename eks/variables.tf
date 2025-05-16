@@ -38,3 +38,13 @@ variable "max_size" {
     type        = number
     default     = 3
 }
+
+variable "vpc_id" {
+    description = "The VPC ID to use for the EKS cluster"
+    type        = string
+}
+
+variable "subnet_ids" {
+    description = "The subnet IDs to use for the EKS cluster"
+    type        = list(string)
+}
