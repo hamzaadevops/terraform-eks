@@ -33,3 +33,4 @@ terraform.rc
 # OS-specific files
 .DS_Store
 Thumbs.db
+.terraform.lock.hcl
