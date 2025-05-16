@@ -9,21 +9,13 @@ module "eks" {
 
   # Optional: Enable the cluster endpoint public access
   cluster_endpoint_public_access = true
-#   access_entries = {
-#     example = {
-#       principal_arn = "arn:aws:iam::123456789012:user/my-user"
-
-#       policy_associations = {
-#         example = {
-#           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
-#           access_scope = {
-#             namespaces = ["default"]
-#             type       = "namespace"
-#           }
-#         }
-#       }
-#     }
-#   }
+  # map_users = [
+  #   {
+  #     userarn  = "arn:aws:iam::589736534170:user/Hamza_Khan"
+  #     username = "hamza"
+  #     groups   = ["system:masters"]
+  #   }
+  # ]
 
   # Optional: Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
@@ -33,7 +25,23 @@ module "eks" {
 
   enable_irsa = true
 
+  # ─────────────────────────────────────────────────────────────────────
+  # Encryption at rest
+  # ─────────────────────────────────────────────────────────────────────
+  # 1) Let the module create a CMK for you
+  create_kms_key                = true                # ✅ Controls if CMK is created :contentReference[oaicite:0]{index=0}
+  kms_key_enable_default_policy = true                # Include the AWS-managed default key policy
+  kms_key_aliases               = ["eks-etcd"]  # Helpful for console lookup
+  kms_key_description           = "my-cluster cluster encryption key"  
+  
+  # 2) Tell EKS to encrypt “secrets” using that CMK
+  cluster_encryption_config = {
+    resources = ["secrets"]
+  }
+
+  # ─────────────────────────────────────────────────────────────────────
   # EKS Managed Node Group(s)
+  # ─────────────────────────────────────────────────────────────────────
   eks_managed_node_group_defaults = {
     instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
   }
