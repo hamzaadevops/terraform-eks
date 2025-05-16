@@ -1,3 +1,9 @@
+# resource "aws_kms_key" "eks_etcd" {
+#   description             = "EKS etcd envelope encryption"
+#   deletion_window_in_days = 10
+#   enable_key_rotation     = true
+# }
+
 module "vpc" {
   source = "./vpc"
 }
