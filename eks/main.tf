@@ -28,7 +28,7 @@ module "eks" {
   enable_irsa = true
 
   # ─────────────────────────────────────────────────────────────────────
-  # Encryption at rest
+  #                     Encryption at rest
   # ─────────────────────────────────────────────────────────────────────
   # 1) Let the module create a CMK for you
   create_kms_key                = true                # ✅ Controls if CMK is created :contentReference[oaicite:0]{index=0}
@@ -42,7 +42,7 @@ module "eks" {
   }
 
   # ─────────────────────────────────────────────────────────────────────
-  # EKS Managed Node Group(s)
+  #                     EKS Managed Node Group(s)
   # ─────────────────────────────────────────────────────────────────────
   eks_managed_node_group_defaults = {
     instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
