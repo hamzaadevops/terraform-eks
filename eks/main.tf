@@ -5,7 +5,17 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
+  # ─────────────────────────────────────────────────────────────────────
+  #                     addons installation
+  # ─────────────────────────────────────────────────────────────────────
+
   bootstrap_self_managed_addons = true
+  cluster_addons = {
+    coredns                = {}
+    eks-pod-identity-agent = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
+  }
 
   # Optional: Enable the cluster endpoint public access
   cluster_endpoint_public_access = true
