@@ -61,3 +61,24 @@ resource "aws_iam_user_group_membership" "alice_admin" {
     aws_iam_group.administrators.name
   ]
 }
+
+# ✅ This ensures that the role itself has permission to call eks:DescribeCluster after it has been assumed by your user/group.
+
+resource "aws_iam_role_policy" "eks_access_inline_policy" {
+  name = "AllowEksDescribeCluster"
+  role = aws_iam_role.eks_access_to_iam.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "eks:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+

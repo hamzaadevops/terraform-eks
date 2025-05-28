@@ -22,6 +22,10 @@ provider "kubernetes" {
 # ─────────────────────────────────────────────────────────────────────
 #                Managing ConfigMap of VPC_CNI
 # ─────────────────────────────────────────────────────────────────────
+
+# Fetch your current AWS account ID
+data "aws_caller_identity" "current" {}
+
 resource "kubernetes_config_map" "amazon_vpc_cni" {
   metadata {
     name      = "amazon-vpc-cni"
@@ -34,11 +38,10 @@ resource "kubernetes_config_map" "amazon_vpc_cni" {
     "helm.sh/chart" = "aws-vpc-cni-1.19.0"
     "app.kubernetes.io/version" = "v1.19.0"
   }
-
   }
 
   data = {
-        # The number of ENIs to keep pre-allocated. Setting to "0" means no extra ENIs are kept warm.
+    # The number of ENIs to keep pre-allocated. Setting to "0" means no extra ENIs are kept warm.
     "warm-eni-target" = "0"
 
     # The number of prefix blocks (/28 or /29 CIDR) to keep warm. Only applicable when ENABLE_PREFIX_DELEGATION is enabled.
@@ -65,5 +68,23 @@ resource "kubernetes_config_map" "amazon_vpc_cni" {
     "enable-windows-prefix-delegation" = "false"
   }
 
+  depends_on = [module.eks]
+}
+
+resource "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    mapRoles = yamlencode([
+      {
+        rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks_access_to_iam"
+        username = "eks-admin"
+        groups   = ["system:masters"]
+      }
+    ])
+  }
   depends_on = [module.eks]
 }
