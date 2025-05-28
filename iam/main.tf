@@ -1,7 +1,7 @@
 # Fetch your current AWS account ID
 data "aws_caller_identity" "current" {}
 
-# 1. The role that you want people to assume
+# The role that you want people to assume
 resource "aws_iam_role" "eks_access_to_iam" {
   name = "eks_access_to_iam"
 
@@ -20,12 +20,18 @@ resource "aws_iam_role" "eks_access_to_iam" {
   })
 }
 
-# 2. Create the Administrators group
+# Attach AmazonEKSClusterPolicy to the role
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  role       = aws_iam_role.eks_access_to_iam.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+# Create an IAM Group Administrators 
 resource "aws_iam_group" "administrators" {
   name = "Administrators"
 }
 
-# 3. Give that group permission to assume the role
+# Allow the group to assume the EKS role
 #    So only members of Administrators can actually call sts:AssumeRole on eks_access_to_iam
 resource "aws_iam_group_policy" "allow_assume_eks_access" {
   name  = "AllowAssumeEksAccess"
@@ -43,19 +49,15 @@ resource "aws_iam_group_policy" "allow_assume_eks_access" {
   })
 }
 
-#Create a user and add this in a iam group
+# Create a user 
 resource "aws_iam_user" "alice" {
   name = "alice"
 }
 
+# Add the user to the Administrators group
 resource "aws_iam_user_group_membership" "alice_admin" {
   user = aws_iam_user.alice.name
   groups = [
     aws_iam_group.administrators.name
   ]
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  role       = aws_iam_role.eks_access_to_iam.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
