@@ -68,7 +68,7 @@ Define required variables in terraform.tfvars or via environment variables:
 
 ## 👥 IAM Setup and Access Control
 
-- Creates an IAM role eks_access_to_iam for EKS access.
+- Creates an IAM role eks_admin_role for EKS access.
 - Only members of the Administrators IAM group can assume this role.
 - IAM user alice is created and added to the group as an example.
 
@@ -116,4 +116,5 @@ module.eks.kubernetes_config_map.amazon_vpc_cni: Creating...
 RUn the below command to import the config map
 ```bash
 terraform import module.eks.kubernetes_config_map.amazon_vpc_cni kube-system/amazon-vpc-cni
+terraform import module.eks.kubernetes_config_map.aws_auth kube-system/aws-auth
 ```

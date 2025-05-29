@@ -19,14 +19,7 @@ module "eks" {
 
   # Optional: Enable the cluster endpoint public access
   cluster_endpoint_public_access = true
-  # map_users = [
-  #   {
-  #     userarn  = "arn:aws:iam::589736534170:user/Hamza_Khan"
-  #     username = "hamza"
-  #     groups   = ["system:masters"]
-  #   }
-  # ]
-
+ 
   # Optional: Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions  = true
   cluster_enabled_log_types                 = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
@@ -64,11 +57,12 @@ module "eks" {
       ami_type       = var.ami_type
       instance_types = var.instance_types
 
-      min_size     = var.min_size
-      desired_size = var.desired_size
-      max_size     = var.max_size
+      min_size       = var.min_size
+      desired_size   = var.desired_size
+      max_size       = var.max_size
 
-      subnet_ids = var.subnet_ids
+      subnet_ids     = var.subnet_ids
+      iam_role_arn   = var.iam_role_arn
     }
   }
 
