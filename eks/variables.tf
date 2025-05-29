@@ -48,3 +48,13 @@ variable "subnet_ids" {
     description = "The subnet IDs to use for the EKS cluster"
     type        = list(string)
 }
+
+variable "eks_admin_role_arn" {
+  type        = string
+  description = "IAM role ARN used by EKS Administrators"
+}
+
+variable "iam_role_arn" {
+  type        = string
+  description = "IAM role ARN used by EKS worker nodes"
+}
