@@ -1,5 +1,28 @@
-# Fetch your current AWS account ID
+  # ─────────────────────────────────────────────────────────────────────
+  #                     AWS IAM ROLE
+  # ─────────────────────────────────────────────────────────────────────
+  
 data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy" "alb_controller" {
+  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AWSLoadBalancerControllerIAMPolicy"
+}
+
+data "aws_iam_policy_document" "alb_irsa_assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      type        = "Federated"
+      identifiers = [var.oidc_provider_arn]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(var.cluster_oidc_issuer_url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:aws-load-balancer-controller"]
+    }
+  }
+}
+
   # ─────────────────────────────────────────────────────────────────────
   #                     AWS IAM ROLE
   # ─────────────────────────────────────────────────────────────────────
@@ -32,6 +55,11 @@ resource "aws_iam_role" "eks_node_role" {
     }]
   })
 }
+
+resource "aws_iam_role" "alb_irsa_role" {
+  name               = "${var.cluster_name}-alb-irsa"
+  assume_role_policy = data.aws_iam_policy_document.alb_irsa_assume.json
+}
   # ─────────────────────────────────────────────────────────────────────
   #                     ROLE POLICY ATTACHMENT
   # ─────────────────────────────────────────────────────────────────────
@@ -61,6 +89,10 @@ resource "aws_iam_role_policy_attachment" "eks_worker_nodes"{
 #   ]
 # }
 
+resource "aws_iam_role_policy_attachment" "alb_attach" {
+  role       = aws_iam_role.alb_irsa_role.name
+  policy_arn = data.aws_iam_policy.alb_controller.arn
+}
   # ─────────────────────────────────────────────────────────────────────
   #                     IAM USERS Related Stuff
   # ─────────────────────────────────────────────────────────────────────

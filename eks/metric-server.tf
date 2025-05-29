@@ -11,6 +11,7 @@ provider "helm" {
     args = [
       "eks", "get-token",
       "--cluster-name", module.eks.cluster_name,
+      "--role-arn", var.eks_admin_role_arn
     ]
   }
   }
@@ -35,4 +36,33 @@ resource "helm_release" "metrics_server" {
   depends_on = [
     module.eks
   ]
+}
+
+resource "helm_release" "alb_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  version    = "1.13.0"
+  namespace  = "kube-system"
+
+  set {
+    name  = "clusterName"
+    value = var.cluster_name
+  }
+  set {
+    name  = "serviceAccount.create"
+    value = "false"
+  }
+  set {
+    name  = "serviceAccount.name"
+    value = kubernetes_service_account.alb_controller.metadata[0].name
+  }
+  set {
+    name  = "region"
+    value = var.region
+  }
+  set {
+    name  = "vpcId"
+    value = var.vpc_id
+  }
 }

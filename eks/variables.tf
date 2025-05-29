@@ -1,7 +1,6 @@
 variable "cluster_name" {
     description = "The name of the EKS cluster"
     type        = string
-    default = "my-cluster"
 }
 
 variable "cluster_version"{
@@ -18,7 +17,7 @@ variable "ami_type" {
 variable "instance_types" {
     description = "The instance types to use for the EKS managed node group"
     type        = list(string)
-    default     = ["t3.medium"]
+    default     = ["t2.small"]
 }
 
 variable "min_size" {
@@ -30,7 +29,7 @@ variable "min_size" {
 variable "desired_size" {
     description = "The desired size of the EKS managed node group"
     type        = number
-    default     = 2
+    default     = 1
 }
 
 variable "max_size" {
@@ -57,4 +56,14 @@ variable "eks_admin_role_arn" {
 variable "iam_role_arn" {
   type        = string
   description = "IAM role ARN used by EKS worker nodes"
+}
+
+variable "alb_irsa_role_arn" {  
+  type        = string
+  description = "IAM role ARN used by EKS worker nodes"
+}
+
+variable "region" {
+  type = string
+  description = "Region"
 }

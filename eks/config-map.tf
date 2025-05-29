@@ -1,7 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────
 #                Kubernetes Provider Configuration
 # ─────────────────────────────────────────────────────────────────────
-
 provider "kubernetes" {
   host = module.eks.cluster_endpoint
 
@@ -15,15 +14,23 @@ provider "kubernetes" {
     args = [
       "eks", "get-token",
       "--cluster-name", module.eks.cluster_name,
+      "--role-arn", var.eks_admin_role_arn
     ]
   }
 }
 
+resource "kubernetes_service_account" "alb_controller" {
+  metadata {
+    name      = "aws-load-balancer-controller"
+    namespace = "kube-system"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = var.alb_irsa_role_arn
+    }
+  }
+}
 # ─────────────────────────────────────────────────────────────────────
 #                Managing ConfigMap of VPC_CNI
 # ─────────────────────────────────────────────────────────────────────
-
-# Fetch your current AWS account ID
 data "aws_caller_identity" "current" {}
 
 resource "kubernetes_config_map" "amazon_vpc_cni" {
